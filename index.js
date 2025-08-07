@@ -4,7 +4,16 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors({origin: '*'}));
+const allowedOrigins = ['https://fiosdecabacos.web.app', 'http://localhost:4200'];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('A origem não é permitida pelo CORS'));
+    }
+  }
+}));
 app.use(express.json());
 
 app.post('/send-email', async (req, res) => {
@@ -79,7 +88,7 @@ ${itemsList}
       text: emailNotifyText,
     });
 
-    res.send('Emails enviados com sucesso.');
+    res.status(200).json({ message: 'Emails enviados com sucesso.' });
   } catch (error) {
     console.error(error);
     res.status(500).send('Erro ao enviar emails.');
